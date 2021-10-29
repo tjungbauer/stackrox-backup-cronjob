@@ -1,0 +1,77 @@
+kind: CronJob
+apiVersion: batch/v1beta1
+metadata:
+  name: cronjob-roxctl-backup
+  namespace: {{ .Values.namespace }}
+  labels:
+    purpose: roxctl-backup
+spec:
+  schedule: '{{ .Values.schedule }}'
+  startingDeadlineSeconds: 200
+  concurrencyPolicy: Forbid
+  suspend: false
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          nodeSelector:
+            node-role.kubernetes.io/worker: ''
+          restartPolicy: Never
+          activeDeadlineSeconds: 200
+          serviceAccountName: {{ .Values.serviceaccount }}
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          securityContext: {}
+          containers:
+            - resources:
+                requests:
+                  cpu: 300m
+                  memory: 250Mi
+              terminationMessagePath: /dev/termination-log
+              name: roxctl-backup
+              command:
+                - /bin/sh
+                - '-c'
+                - >-
+                  /usr/local/bin/roxctl
+                  --endpoint=$STACKROXURL
+                  central backup  --insecure-skip-tls-verify
+                  --password=$STACKROXPASS --output=/roxctl-backup
+              env:
+                - name: STACKROXPASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: acs-auth-sealedsecret
+                      key: stackrox_pass
+                - name: STACKROXURL
+                  valueFrom:
+                    secretKeyRef:
+                      name: acs-auth-sealedsecret
+                      key: stackrox_url
+              securityContext:
+                privileged: false
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: roxctl-backup
+                  mountPath: /roxctl-backup
+              terminationMessagePolicy: FallbackToLogsOnError
+              image: >-
+                quay.io/tjungbau/roxctl-bin-contaier@sha256:9fa3cf6ea9ede649ff58080cf69f8b79f8b3cb8f63692f42c49326d0d75e0152
+          serviceAccount: {{ .Values.serviceaccount }}
+          volumes:
+            - name: roxctl-backup
+              persistentVolumeClaim:
+                claimName: {{ .Values.storage.pvc }}
+          dnsPolicy: ClusterFirst
+          tolerations:
+            - operator: Exists
+              effect: NoSchedule
+            - operator: Exists
+              effect: NoExecute
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    purpose: roxctl-backup
+  name: {{ .Values.serviceaccount }}
+  namespace: {{ .Values.namespace }}

@@ -1,0 +1,17 @@
+apiVersion: "v1"
+kind: Pod
+metadata:
+  name: roxctl-backup-extract
+  namespace: cluster-ops
+spec:
+  containers:
+    - name: pv-extract-pod
+      image: registry.access.redhat.com/ubi8/ubi
+      command: ["sleep", "3000"]
+      volumeMounts: 
+      - mountPath: "/roxctl-backup"
+        name: roxctl-backup
+  volumes: 
+    - name: roxctl-backup
+      persistentVolumeClaim:
+        claimName: roxctl-backup-pvc
