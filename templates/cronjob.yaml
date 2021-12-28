@@ -61,7 +61,7 @@ spec:
                   mountPath: /roxctl-backup
               terminationMessagePolicy: FallbackToLogsOnError
               image: >-
-                quay.io/tjungbau/roxctl-bin-contaier:{{ .Values.acs_roxctl_version_tag }}
+                quay.io/tjungbau/roxctl-bin-container:{{ .Values.acs_roxctl_version_tag }}
           serviceAccount: {{ .Values.serviceaccount }}
           volumes:
             - name: roxctl-backup
