@@ -10,9 +10,7 @@ Before you start you need to pass some information into a secret.
 The provided `create-secret.sh` creates such secret for you, leveraging Sealed Secrets.
 
 For example execute:
-`create-secret.sh <namespace-name> <ACS-password>`
-
---> TODO: Using Token would be better.
+`create-secret.sh <namespace-name> <ACS-TOKEN>`
 
 Alternatively, you can manually create the following secret, i.e. if Sealed Secret is not available:
 
@@ -23,7 +21,7 @@ metadata:
   name: acs-auth-sealedsecret
   namespace: cluster-ops
 data:
-  stackrox_pass: <ACS PASSWORD>
+  stackrox_token: <ACS TOKEN>
   stackrox_url: <ACS CENTRAL URL>
 type: Opaque
 ```

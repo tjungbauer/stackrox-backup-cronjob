@@ -1,5 +1,5 @@
 kind: CronJob
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 metadata:
   name: cronjob-roxctl-backup
   namespace: {{ .Values.namespace }}
@@ -41,13 +41,13 @@ spec:
                   /usr/local/bin/roxctl
                   --endpoint=$STACKROXURL
                   central backup  --insecure-skip-tls-verify
-                  --password=$STACKROXPASS --output=/roxctl-backup
+                  --output=/roxctl-backup
               env:
-                - name: STACKROXPASS
+                - name: ROX_API_TOKEN
                   valueFrom:
                     secretKeyRef:
                       name: acs-auth-sealedsecret
-                      key: stackrox_pass
+                      key: stackrox_token
                 - name: STACKROXURL
                   valueFrom:
                     secretKeyRef:
@@ -61,7 +61,7 @@ spec:
                   mountPath: /roxctl-backup
               terminationMessagePolicy: FallbackToLogsOnError
               image: >-
-                quay.io/tjungbau/roxctl-bin-contaier@sha256:9fa3cf6ea9ede649ff58080cf69f8b79f8b3cb8f63692f42c49326d0d75e0152
+                quay.io/tjungbau/roxctl-bin-contaier:{{ .Values.acs_roxctl_version_tag }}
           serviceAccount: {{ .Values.serviceaccount }}
           volumes:
             - name: roxctl-backup
